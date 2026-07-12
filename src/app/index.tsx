@@ -1,13 +1,12 @@
-import React from "react";
 import {
+  Image,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  ScrollView,
-  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,7 +14,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.menuButton}>
@@ -26,7 +25,7 @@ export default function HomeScreen() {
           <Text style={styles.profileIcon}>👤</Text>
         </TouchableOpacity>
       </View>
-      
+
       {/* Search and Filter */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
@@ -50,10 +49,10 @@ export default function HomeScreen() {
         <View style={styles.productList}>
           {/* Product 1 */}
           <View style={styles.productCard}>
-            <Image 
-              source={require('@/assets/images/psu/fsp.png')} 
-              style={styles.productImage} 
-              resizeMode="contain" 
+            <Image
+              source={require('@/assets/images/psu/fsp.png')}
+              style={styles.productImage}
+              resizeMode="contain"
             />
             <View style={styles.productInfo}>
               <Text style={styles.productName}>PSU คอม FSP HV+ 600W</Text>
@@ -66,10 +65,10 @@ export default function HomeScreen() {
 
           {/* Product 2 */}
           <View style={styles.productCard}>
-            <Image 
-              source={require('@/assets/images/psu/msi.png')} 
-              style={styles.productImage} 
-              resizeMode="contain" 
+            <Image
+              source={require('@/assets/images/psu/msi.png')}
+              style={styles.productImage}
+              resizeMode="contain"
             />
             <View style={styles.productInfo}>
               <Text style={styles.productName}>PSU คอม MSI MAG A600DN 600W BULK</Text>
@@ -82,10 +81,10 @@ export default function HomeScreen() {
 
           {/* Product 3 */}
           <View style={styles.productCard}>
-            <Image 
-              source={require('@/assets/images/psu/azza.png')} 
-              style={styles.productImage} 
-              resizeMode="contain" 
+            <Image
+              source={require('@/assets/images/psu/azza.png')}
+              style={styles.productImage}
+              resizeMode="contain"
             />
             <View style={styles.productInfo}>
               <Text style={styles.productName}>PSU คอม AZZA PSAZ 550W</Text>
