@@ -1,29 +1,83 @@
 import {
   Image,
-  ScrollView,
+  FlatList,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useState } from "react";
+import { useRouter } from 'expo-router';
+import { useAppContext } from '@/context/AppContext';
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const { products, addToCart, cart } = useAppContext();
+  const [searchText, setSearchText] = useState("");
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default');
+
+  const parsePrice = (priceStr: string) => parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+
+  const filteredProducts = products.filter((p: any) => 
+    p.name.toLowerCase().includes(searchText.toLowerCase())
+  ).sort((a: any, b: any) => {
+    if (sortOrder === 'asc') return parsePrice(a.price) - parsePrice(b.price);
+    if (sortOrder === 'desc') return parsePrice(b.price) - parsePrice(a.price);
+    return 0;
+  });
+
+  const handleBuy = (item: any) => {
+    addToCart(item);
+    Alert.alert("เพิ่มลงตะกร้า", `คุณได้เพิ่ม ${item.name} ลงในตะกร้าแล้ว!`);
+  };
+
+  const renderProduct = ({ item }: { item: any }) => (
+    <View style={styles.productCard}>
+      <Image
+        source={{ uri: item.image_url }}
+        style={styles.productImage}
+        resizeMode="contain"
+      />
+      <View style={styles.productInfo}>
+        <Text style={styles.productName}>{item.name}</Text>
+        <Text style={styles.productPrice}>{item.price}</Text>
+        <TouchableOpacity style={styles.buyButton} onPress={() => handleBuy(item)}>
+          <Text style={styles.buyButtonText}>Buy</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
           <Text style={styles.menuIcon}>≡</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>PSU Store</Text>
-        <TouchableOpacity style={styles.profileButton}>
-          <Text style={styles.profileIcon}>👤</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/cart')}>
+            <Text style={styles.cartIcon}>🛒</Text>
+            {cart.length > 0 && (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{cart.reduce((a, c) => a + c.quantity, 0)}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/profile')}>
+            <Text style={styles.profileIcon}>👤</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Search and Filter */}
@@ -35,75 +89,36 @@ export default function HomeScreen() {
             placeholder="Search PSU..."
             placeholderTextColor="#999"
             editable={true}
+            value={searchText}
+            onChangeText={setSearchText}
           />
         </View>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity style={styles.addButton} onPress={() => router.push('/add')}>
           <Text style={styles.addButtonText}>+ Add PSU</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.filterButton}>
+        <TouchableOpacity style={styles.filterButton} onPress={() => setFilterVisible(true)}>
           <Text style={styles.filterText}>Filter ▼</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.productList}>
-          {/* Product 1 */}
-          <View style={styles.productCard}>
-            <Image
-              source={require('@/assets/images/psu/fsp.png')}
-              style={styles.productImage}
-              resizeMode="contain"
-            />
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>PSU คอม FSP HV+ 600W</Text>
-              <Text style={styles.productPrice}>฿1,290</Text>
-              <TouchableOpacity style={styles.buyButton}>
-                <Text style={styles.buyButtonText}>Buy</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Product 2 */}
-          <View style={styles.productCard}>
-            <Image
-              source={require('@/assets/images/psu/msi.png')}
-              style={styles.productImage}
-              resizeMode="contain"
-            />
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>PSU คอม MSI MAG A600DN 600W BULK</Text>
-              <Text style={styles.productPrice}>฿1,590</Text>
-              <TouchableOpacity style={styles.buyButton}>
-                <Text style={styles.buyButtonText}>Buy</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Product 3 */}
-          <View style={styles.productCard}>
-            <Image
-              source={require('@/assets/images/psu/azza.png')}
-              style={styles.productImage}
-              resizeMode="contain"
-            />
-            <View style={styles.productInfo}>
-              <Text style={styles.productName}>PSU คอม AZZA PSAZ 550W</Text>
-              <Text style={styles.productPrice}>฿990</Text>
-              <TouchableOpacity style={styles.buyButton}>
-                <Text style={styles.buyButtonText}>Buy</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+      <View style={styles.content}>
+        <FlatList
+          data={filteredProducts}
+          keyExtractor={(item) => item.id}
+          renderItem={renderProduct}
+          contentContainerStyle={styles.productList}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={<Text style={{color: '#fff', textAlign: 'center'}}>ไม่พบสินค้าที่คุณค้นหา</Text>}
+        />
+      </View>
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/")}>
           <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/add')}>
           <Text style={styles.navIcon}>➕</Text>
           <Text style={styles.navText}>Add</Text>
         </TouchableOpacity>
@@ -111,11 +126,50 @@ export default function HomeScreen() {
           <Text style={styles.navIcon}>📦</Text>
           <Text style={[styles.navText, { color: "#F59E0B", fontWeight: 'bold' }]}>PSU</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/explore")}>
           <Text style={styles.navIcon}>📁</Text>
           <Text style={styles.navText}>Categories</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Menu Modal */}
+      <Modal visible={menuVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>เมนู</Text>
+            <TouchableOpacity style={styles.modalItem} onPress={() => setMenuVisible(false)}>
+              <Text style={styles.modalItemText}>⚙️ การตั้งค่า (Settings)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalItem} onPress={() => setMenuVisible(false)}>
+              <Text style={styles.modalItemText}>ℹ️ เกี่ยวกับแอป (About)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeModalButton} onPress={() => setMenuVisible(false)}>
+              <Text style={styles.closeModalText}>ปิด</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Filter Modal */}
+      <Modal visible={filterVisible} animationType="fade" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>เรียงลำดับสินค้า</Text>
+            <TouchableOpacity style={styles.modalItem} onPress={() => { setSortOrder('default'); setFilterVisible(false); }}>
+              <Text style={styles.modalItemText}>⭐ เรียงตามปกติ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalItem} onPress={() => { setSortOrder('asc'); setFilterVisible(false); }}>
+              <Text style={styles.modalItemText}>📈 ราคา: ต่ำไปสูง</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalItem} onPress={() => { setSortOrder('desc'); setFilterVisible(false); }}>
+              <Text style={styles.modalItemText}>📉 ราคา: สูงไปต่ำ</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeModalButton} onPress={() => setFilterVisible(false)}>
+              <Text style={styles.closeModalText}>ยกเลิก</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -157,6 +211,33 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cartButton: {
+    marginRight: 15,
+    position: 'relative',
+  },
+  cartIcon: {
+    fontSize: 24,
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -5,
+    right: -10,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBadgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   profileIcon: {
     fontSize: 16,
@@ -286,5 +367,47 @@ const styles = StyleSheet.create({
   navText: {
     fontSize: 12,
     color: "#94A3B8",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#F59E0B',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  modalItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
+  },
+  modalItemText: {
+    fontSize: 16,
+    color: '#F8FAFC',
+  },
+  closeModalButton: {
+    marginTop: 20,
+    backgroundColor: '#334155',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  closeModalText: {
+    color: '#F8FAFC',
+    fontSize: 16,
+    fontWeight: 'bold',
   }
 });
