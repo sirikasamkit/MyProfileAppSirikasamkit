@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "name": "PSU คอม FSP HV+ 600W",
+    "price": "฿1,290",
+    "image_url": "https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/main/assets/images/psu/fsp.png"
+  },
+  {
+    "id": "2",
+    "name": "PSU คอม MSI MAG A600DN 600W BULK",
+    "price": "฿1,590",
+    "image_url": "https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/main/assets/images/psu/msi.png"
+  },
+  {
+    "id": "3",
+    "name": "PSU คอม AZZA PSAZ 550W",
+    "price": "฿990",
+    "image_url": "https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/main/assets/images/psu/azza.png"
+  }
+]
