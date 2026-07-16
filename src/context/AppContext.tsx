@@ -21,6 +21,8 @@ type AppContextType = {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const PRODUCTS_URL = 'https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/master/products.json';
+
 export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -29,7 +31,6 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
     // Initial fetch from github
     const fetchProducts = async () => {
       try {
-        const PRODUCTS_URL = 'https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/master/products.json';
         const response = await fetch(PRODUCTS_URL);
         const data = await response.json();
         setProducts(data);
