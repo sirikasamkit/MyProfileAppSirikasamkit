@@ -17,13 +17,13 @@ import { useAppContext } from '@/context/AppContext';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { products, addToCart, cart } = useAppContext();
+  const { products, addToCart, cart, isAdmin, isUserLoggedIn, username, logout } = useAppContext();
   const [searchText, setSearchText] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
   const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default');
 
-  const parsePrice = (priceStr: string) => parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+  const parsePrice = (priceStr: string) => parseInt(priceStr.toString().replace(/[^0-9]/g, '')) || 0;
 
   const filteredProducts = products.filter((p: any) => 
     p.name.toLowerCase().includes(searchText.toLowerCase())
@@ -35,7 +35,7 @@ export default function HomeScreen() {
 
   const handleBuy = (item: any) => {
     addToCart(item);
-    Alert.alert("เพิ่มลงตะกร้า", `คุณได้เพิ่ม ${item.name} ลงในตะกร้าแล้ว!`);
+    Alert.alert("เพิ่มลงตะกร้า", `คุณได้เพิ่ม ${item.name} ลงในตะกร้าแล้ว! ไปชำระเงินที่หน้าตะกร้าสินค้า`);
   };
 
   const renderProduct = ({ item }: { item: any }) => (
@@ -48,9 +48,16 @@ export default function HomeScreen() {
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{item.name}</Text>
         <Text style={styles.productPrice}>{item.price}</Text>
-        <TouchableOpacity style={styles.buyButton} onPress={() => handleBuy(item)}>
-          <Text style={styles.buyButtonText}>Buy</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <TouchableOpacity style={styles.buyButton} onPress={() => handleBuy(item)}>
+            <Text style={styles.buyButtonText}>Buy</Text>
+          </TouchableOpacity>
+          {isAdmin && (
+            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#3B82F6' }]} onPress={() => router.push({ pathname: '/add', params: { id: item.id } })}>
+              <Text style={styles.buyButtonText}>Edit</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -74,9 +81,6 @@ export default function HomeScreen() {
               </View>
             )}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/profile')}>
-            <Text style={styles.profileIcon}>👤</Text>
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -93,9 +97,11 @@ export default function HomeScreen() {
             onChangeText={setSearchText}
           />
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={() => router.push('/add')}>
-          <Text style={styles.addButtonText}>+ Add PSU</Text>
-        </TouchableOpacity>
+        {isAdmin && (
+          <TouchableOpacity style={styles.addButton} onPress={() => router.push('/add')}>
+            <Text style={styles.addButtonText}>+ Add PSU</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.filterButton} onPress={() => setFilterVisible(true)}>
           <Text style={styles.filterText}>Filter ▼</Text>
         </TouchableOpacity>
@@ -116,20 +122,18 @@ export default function HomeScreen() {
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push("/")}>
           <Text style={styles.navIcon}>🏠</Text>
-          <Text style={styles.navText}>Home</Text>
+          <Text style={[styles.navText, { color: "#F59E0B", fontWeight: 'bold' }]}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/add')}>
-          <Text style={styles.navIcon}>➕</Text>
-          <Text style={styles.navText}>Add</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/cart')}>
+          <Text style={styles.navIcon}>🛒</Text>
+          <Text style={styles.navText}>Cart</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>📦</Text>
-          <Text style={[styles.navText, { color: "#F59E0B", fontWeight: 'bold' }]}>PSU</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/explore")}>
-          <Text style={styles.navIcon}>📁</Text>
-          <Text style={styles.navText}>Categories</Text>
-        </TouchableOpacity>
+        {isAdmin && (
+          <TouchableOpacity style={styles.navItem} onPress={() => router.push("/sales")}>
+            <Text style={styles.navIcon}>📊</Text>
+            <Text style={styles.navText}>Sales</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Menu Modal */}
@@ -137,12 +141,31 @@ export default function HomeScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>เมนู</Text>
-            <TouchableOpacity style={styles.modalItem} onPress={() => setMenuVisible(false)}>
-              <Text style={styles.modalItemText}>⚙️ การตั้งค่า (Settings)</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.modalItem} onPress={() => setMenuVisible(false)}>
-              <Text style={styles.modalItemText}>ℹ️ เกี่ยวกับแอป (About)</Text>
-            </TouchableOpacity>
+            
+            {isAdmin || isUserLoggedIn ? (
+              <>
+                <View style={{ paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#334155', alignItems: 'center' }}>
+                  <Text style={{ color: '#F8FAFC', fontSize: 16 }}>สวัสดีคุณ <Text style={{ fontWeight: 'bold', color: '#10B981' }}>{username}</Text></Text>
+                  {isAdmin && <Text style={{ color: '#F59E0B', fontSize: 12 }}>[ผู้ดูแลระบบ]</Text>}
+                </View>
+                {!isAdmin && (
+                  <TouchableOpacity style={styles.modalItem} onPress={() => { setMenuVisible(false); router.push('/orders'); }}>
+                    <Text style={[styles.modalItemText, { color: '#10B981' }]}>📦 ติดตามสถานะคำสั่งซื้อ (Orders)</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity style={styles.modalItem} onPress={() => { setMenuVisible(false); router.push('/profile'); }}>
+                  <Text style={[styles.modalItemText, { color: '#3B82F6' }]}>👤 โปรไฟล์ส่วนตัว (My Profile)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalItem} onPress={() => { setMenuVisible(false); logout(); }}>
+                  <Text style={[styles.modalItemText, { color: '#EF4444' }]}>🚪 ออกจากระบบ (Logout)</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity style={styles.modalItem} onPress={() => { setMenuVisible(false); router.push('/login'); }}>
+                <Text style={[styles.modalItemText, { color: '#3B82F6' }]}>🔐 เข้าสู่ระบบ / สมัครสมาชิก</Text>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity style={styles.closeModalButton} onPress={() => setMenuVisible(false)}>
               <Text style={styles.closeModalText}>ปิด</Text>
             </TouchableOpacity>
@@ -204,20 +227,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#F59E0B",
   },
-  profileButton: {
-    width: 30,
-    height: 30,
-    backgroundColor: "#F59E0B",
-    borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   cartButton: {
-    marginRight: 15,
     position: 'relative',
   },
   cartIcon: {
@@ -238,10 +252,6 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 10,
     fontWeight: 'bold',
-  },
-  profileIcon: {
-    fontSize: 16,
-    color: "#0F172A",
   },
   searchContainer: {
     flexDirection: "row",

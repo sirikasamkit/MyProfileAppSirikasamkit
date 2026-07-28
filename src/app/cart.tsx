@@ -9,8 +9,8 @@ export default function CartScreen() {
   const { cart, removeFromCart } = useAppContext();
 
   const total = cart.reduce((sum, item) => {
-    const priceStr = item.price.replace(/[^0-9]/g, '');
-    const priceNum = parseInt(priceStr) || 0;
+    const priceStr = item.price.toString().replace(/[^0-9.]/g, '');
+    const priceNum = parseFloat(priceStr) || 0;
     return sum + (priceNum * item.quantity);
   }, 0);
 
@@ -57,7 +57,7 @@ export default function CartScreen() {
               <Text style={styles.totalLabel}>รวมทั้งหมด:</Text>
               <Text style={styles.totalValue}>฿{total.toLocaleString()}</Text>
             </View>
-            <TouchableOpacity style={styles.checkoutButton}>
+            <TouchableOpacity style={styles.checkoutButton} onPress={() => router.push('/checkout')}>
               <Text style={styles.checkoutText}>ดำเนินการชำระเงิน</Text>
             </TouchableOpacity>
           </View>
