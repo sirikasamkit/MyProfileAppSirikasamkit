@@ -59,10 +59,17 @@ export default function AddEditScreen() {
       try {
         const formData = new FormData();
         const filename = selectedUri.split('/').pop() || 'image.jpg';
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : `image`;
-
-        formData.append('image', { uri: selectedUri, name: filename, type } as any);
+        
+        try {
+          // Fix for Web vs Native
+          const response = await fetch(selectedUri);
+          const blob = await response.blob();
+          formData.append('image', blob, filename);
+        } catch (err) {
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : `image`;
+          formData.append('image', { uri: selectedUri, name: filename, type } as any);
+        }
 
         const response = await fetch(`${API_BASE_URL}/api/upload`, {
           method: 'POST',
@@ -110,9 +117,14 @@ export default function AddEditScreen() {
     }
 
     if (success) {
-      Alert.alert('สำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว!', [
-        { text: 'ตกลง', onPress: () => router.back() }
-      ]);
+      if (typeof window !== 'undefined') {
+        window.alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
+        router.replace('/');
+      } else {
+        Alert.alert('สำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว!', [
+          { text: 'ตกลง', onPress: () => router.replace('/') }
+        ]);
+      }
     } else {
       Alert.alert('ผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้');
     }

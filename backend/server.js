@@ -252,7 +252,7 @@ app.put('/api/products/:id', authenticateToken, async (req, res) => {
     const { name, brand, wattage, efficiency_rating, modular_type, price, stock, image } = req.body;
     await pool.query(
       'UPDATE psus SET name=?, brand=?, wattage=?, efficiency_rating=?, modular_type=?, price=?, stock=?, image=? WHERE psu_id=?',
-      [name, brand, wattage, efficiency_rating, modular_type, price, stock, image, id]
+      [name, brand || '', wattage || 0, efficiency_rating || '', modular_type || '', price || 0, stock || 0, image || null, id]
     );
     res.json({ message: 'Product updated successfully' });
   } catch (e) {
