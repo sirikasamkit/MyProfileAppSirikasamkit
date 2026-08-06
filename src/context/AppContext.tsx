@@ -18,6 +18,7 @@ type AppContextType = {
   fetchProducts: () => void;
   addProduct: (product: any) => Promise<boolean>;
   updateProduct: (id: string, product: any) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
   cart: CartItem[];
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
@@ -63,6 +64,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUsername(null);
   };
 
+  // ฟังก์ชันไปเหมาสินค้าทั้งหมดมาจากเซิร์ฟเวอร์
   const fetchProducts = async () => {
     try {
       const response = await fetch(PRODUCTS_URL);
@@ -98,9 +100,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     fetchProducts();
   }, []);
 
+  // ฟังก์ชันเพิ่มสินค้าใหม่ (ต้องมีบัตรแอดมิน)
   const addProduct = async (productData: any) => {
     if (!token) return false;
     try {
+      // ส่งข้อมูลไปเซฟที่หลังบ้าน
       const response = await fetch(PRODUCTS_URL, {
         method: 'POST',
         headers: {
@@ -110,7 +114,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         body: JSON.stringify(productData)
       });
       if (response.ok) {
-        await fetchProducts();
+        await fetchProducts(); // เซฟเสร็จก็ดึงของใหม่มาอัปเดตทันที
         return true;
       }
       return false;
@@ -120,6 +124,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // ฟังก์ชันแก้ไขสินค้า (อัปเดตข้อมูล)
   const updateProduct = async (id: string, productData: any) => {
     if (!token) return false;
     try {
@@ -130,6 +135,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(productData)
+      });
+      if (response.ok) {
+        await fetchProducts(); // อัปเดตเสร็จก็รีเฟรชข้อมูลใหม่
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  };
+
+  const deleteProduct = async (id: string) => {
+    if (!token) return false;
+    try {
+      const response = await fetch(`${PRODUCTS_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       if (response.ok) {
         await fetchProducts();
@@ -179,7 +204,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <AppContext.Provider value={{ products, fetchProducts, addProduct, updateProduct, cart, addToCart, removeFromCart, checkout, clearCart, isAdmin, isUserLoggedIn, username, token, login, logout }}>
+    <AppContext.Provider value={{ products, fetchProducts, addProduct, updateProduct, deleteProduct, cart, addToCart, removeFromCart, checkout, clearCart, isAdmin, isUserLoggedIn, username, token, login, logout }}>
       {children}
     </AppContext.Provider>
   );

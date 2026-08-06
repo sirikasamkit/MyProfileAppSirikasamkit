@@ -8,16 +8,49 @@ import {
   Alert,
   Image,
   ScrollView,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAppContext, API_BASE_URL } from '@/context/AppContext';
 import * as ImagePicker from 'expo-image-picker';
 
+const CustomDropdown = ({ label, value, options, onSelect }: any) => {
+  const [visible, setVisible] = useState(false);
+  return (
+    <View>
+      <Text style={styles.label}>{label}</Text>
+      <TouchableOpacity 
+        style={[styles.input, { justifyContent: 'center', minHeight: 50 }]} 
+        onPress={() => setVisible(true)}
+      >
+        <Text style={{ color: value ? '#F8FAFC' : '#94A3B8' }}>{value || `เลือก${label}`}</Text>
+      </TouchableOpacity>
+      
+      <Modal visible={visible} transparent animationType="fade">
+        <TouchableOpacity style={styles.modalOverlay} onPress={() => setVisible(false)} activeOpacity={1}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={options}
+              keyExtractor={item => item.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.modalOption} onPress={() => { onSelect(item); setVisible(false); }}>
+                  <Text style={styles.modalOptionText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+};
+
 export default function AddEditScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { addProduct, updateProduct, isAdmin, products, token } = useAppContext();
+  const { addProduct, updateProduct, deleteProduct, isAdmin, products, token } = useAppContext();
   
   // If id is provided, we are in Edit mode
   const existingProduct = id ? products.find(p => p.id === id) : null;
@@ -25,6 +58,9 @@ export default function AddEditScreen() {
   const [name, setName] = useState(existingProduct?.name || '');
   const [price, setPrice] = useState(existingProduct?.price?.toString().replace(/[^0-9.]/g, '') || '');
   const [brand, setBrand] = useState(existingProduct?.brand || '');
+  const [wattage, setWattage] = useState(existingProduct?.wattage?.toString() || '');
+  const [efficiencyRating, setEfficiencyRating] = useState(existingProduct?.efficiency_rating || '');
+  const [modularType, setModularType] = useState(existingProduct?.modular_type || '');
   const [stock, setStock] = useState(existingProduct?.stock?.toString() || '10');
   const [image, setImage] = useState(existingProduct?.image || existingProduct?.image_url || '');
 
@@ -105,6 +141,9 @@ export default function AddEditScreen() {
       name,
       price: parseFloat(price),
       brand,
+      wattage: wattage ? parseInt(wattage) : 0,
+      efficiency_rating: efficiencyRating,
+      modular_type: modularType,
       stock: parseInt(stock),
       image
     };
@@ -127,6 +166,36 @@ export default function AddEditScreen() {
       }
     } else {
       Alert.alert('ผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้');
+    }
+  };
+
+  const handleDelete = () => {
+    if (typeof window !== 'undefined') {
+      const confirmDelete = window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้? (ไม่สามารถกู้คืนได้)');
+      if (confirmDelete) {
+        processDelete();
+      }
+    } else {
+      Alert.alert('ยืนยันการลบ', 'คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้? (ไม่สามารถกู้คืนได้)', [
+        { text: 'ยกเลิก', style: 'cancel' },
+        { text: 'ลบ', style: 'destructive', onPress: processDelete }
+      ]);
+    }
+  };
+
+  const processDelete = async () => {
+    if (id) {
+      const success = await deleteProduct(id as string);
+      if (success) {
+        if (typeof window !== 'undefined') {
+          window.alert('ลบสินค้าเรียบร้อยแล้ว');
+          router.replace('/');
+        } else {
+          Alert.alert('สำเร็จ', 'ลบสินค้าเรียบร้อยแล้ว', [{ text: 'ตกลง', onPress: () => router.replace('/') }]);
+        }
+      } else {
+        Alert.alert('ผิดพลาด', 'ไม่สามารถลบสินค้าได้');
+      }
     }
   };
 
@@ -157,6 +226,27 @@ export default function AddEditScreen() {
           placeholderTextColor="#94A3B8"
           value={brand}
           onChangeText={setBrand}
+        />
+
+        <CustomDropdown
+          label="กำลังไฟ (Wattage)"
+          value={wattage}
+          options={['450', '500', '550', '600', '650', '750', '850', '1000', '1200', '1600']}
+          onSelect={setWattage}
+        />
+
+        <CustomDropdown
+          label="มาตรฐาน 80+ (Efficiency)"
+          value={efficiencyRating}
+          options={['80 Plus White', '80 Plus Bronze', '80 Plus Silver', '80 Plus Gold', '80 Plus Platinum', '80 Plus Titanium']}
+          onSelect={setEfficiencyRating}
+        />
+
+        <CustomDropdown
+          label="ประเภทสาย (Modular Type)"
+          value={modularType}
+          options={['Non-Modular', 'Semi-Modular', 'Full Modular']}
+          onSelect={setModularType}
         />
 
         <Text style={styles.label}>ราคา (บาท)</Text>
@@ -200,6 +290,12 @@ export default function AddEditScreen() {
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>บันทึกสินค้า</Text>
         </TouchableOpacity>
+
+        {id && (
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Text style={styles.deleteButtonText}>ลบสินค้านี้</Text>
+          </TouchableOpacity>
+        )}
         <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
@@ -289,4 +385,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  deleteButton: {
+    backgroundColor: '#EF4444',
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  deleteButtonText: {
+    color: '#F8FAFC',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center'
+  },
+  modalContent: {
+    backgroundColor: '#1E293B', width: '80%', maxHeight: '60%', borderRadius: 12, paddingVertical: 10, borderWidth: 1, borderColor: '#334155'
+  },
+  modalOption: {
+    paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#334155', paddingHorizontal: 20
+  },
+  modalOptionText: {
+    color: '#F8FAFC', fontSize: 16, textAlign: 'center'
+  }
 });

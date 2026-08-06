@@ -17,7 +17,7 @@ import { useAppContext } from '@/context/AppContext';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { products, addToCart, cart, isAdmin, isUserLoggedIn, username, logout } = useAppContext();
+  const { products, addToCart, cart, isAdmin, isUserLoggedIn, username, logout, deleteProduct } = useAppContext();
   const [searchText, setSearchText] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
@@ -27,37 +27,63 @@ export default function HomeScreen() {
 
   const filteredProducts = products.filter((p: any) => 
     p.name.toLowerCase().includes(searchText.toLowerCase())
+  // เรียงลำดับสินค้าตามราคา (น้อยไปมาก หรือ มากไปน้อย)
   ).sort((a: any, b: any) => {
     if (sortOrder === 'asc') return parsePrice(a.price) - parsePrice(b.price);
     if (sortOrder === 'desc') return parsePrice(b.price) - parsePrice(a.price);
-    return 0;
+    return 0; // ถ้าไม่เลือกเรียงอะไร ก็ปล่อยไว้แบบเดิม
   });
 
+  // ฟังก์ชันเวลากดซื้อสินค้า
   const handleBuy = (item: any) => {
-    addToCart(item);
+    addToCart(item); // โยนเข้าตะกร้า
     Alert.alert("เพิ่มลงตะกร้า", `คุณได้เพิ่ม ${item.name} ลงในตะกร้าแล้ว! ไปชำระเงินที่หน้าตะกร้าสินค้า`);
   };
 
+  // ฟังก์ชันสำหรับกดยืนยันการลบสินค้า
+  const confirmDelete = (item: any) => {
+    if (typeof window !== 'undefined') {
+      const confirm = window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบ ${item.name}?`);
+      if (confirm) {
+        deleteProduct(item.id);
+      }
+    } else {
+      Alert.alert('ยืนยันการลบ', `คุณแน่ใจหรือไม่ว่าต้องการลบ ${item.name}?`, [
+        { text: 'ยกเลิก', style: 'cancel' },
+        { text: 'ลบ', style: 'destructive', onPress: () => deleteProduct(item.id) }
+      ]);
+    }
+  };
+
+  // ส่วนของการ์ดโชว์สินค้าแต่ละตัว
   const renderProduct = ({ item }: { item: any }) => (
     <View style={styles.productCard}>
-      <Image
-        source={{ uri: item.image_url }}
-        style={styles.productImage}
-        resizeMode="contain"
-      />
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productPrice}>{item.price}</Text>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <TouchableOpacity style={styles.buyButton} onPress={() => handleBuy(item)}>
-            <Text style={styles.buyButtonText}>Buy</Text>
-          </TouchableOpacity>
-          {isAdmin && (
-            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#3B82F6' }]} onPress={() => router.push({ pathname: '/add', params: { id: item.id } })}>
+      {/* กดที่รูปหรือชื่อเพื่อไปดูรายละเอียดแบบเจาะลึก */}
+      <TouchableOpacity onPress={() => router.push({ pathname: '/product/[id]', params: { id: item.id } })} style={{ flex: 1 }}>
+        <Image
+          source={{ uri: item.image_url }}
+          style={styles.productImage}
+          resizeMode="contain"
+        />
+        <View style={styles.productInfo}>
+          <Text style={styles.productName}>{item.name}</Text>
+          <Text style={styles.productPrice}>{item.price}</Text>
+        </View>
+      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 15, paddingBottom: 15 }}>
+        <TouchableOpacity style={styles.buyButton} onPress={() => handleBuy(item)}>
+          <Text style={styles.buyButtonText}>Buy</Text>
+        </TouchableOpacity>
+        {isAdmin && (
+          <>
+            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#3B82F6', paddingHorizontal: 12 }]} onPress={() => router.push({ pathname: '/add', params: { id: item.id } })}>
               <Text style={styles.buyButtonText}>Edit</Text>
             </TouchableOpacity>
-          )}
-        </View>
+            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#EF4444', paddingHorizontal: 12 }]} onPress={() => confirmDelete(item)}>
+              <Text style={styles.buyButtonText}>Del</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </View>
   );

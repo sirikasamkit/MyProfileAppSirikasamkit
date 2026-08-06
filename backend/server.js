@@ -8,12 +8,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// สร้างตัวแอปขึ้นมา (เปรียบเหมือนสร้างบ้านให้ API ของเรา)
 const app = express();
-const port = process.env.PORT || 3047;
+const port = process.env.PORT || 3047; // กำหนดช่องทางเข้าบ้าน (Port)
 
-app.use(cors());
-app.use(express.json({ limit: '5mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve uploaded images
+app.use(cors()); // เปิดประตูให้หน้าเว็บของเรายิงข้อมูลเข้ามาได้
+app.use(express.json({ limit: '5mb' })); // รับข้อมูลที่เป็น JSON (แต่ห้ามใหญ่เกิน 5MB นะ)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // เปิดโฟลเดอร์ให้คนเข้ามาดูรูปภาพได้
 
 // Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -21,12 +22,13 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 
-// Multer setup for image uploads
+// ตั้งค่าพี่ Multer เค้ามีหน้าที่เป็นยามรับรูปภาพแล้วเอาไปเก็บ
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, 'uploads/'); // สั่งให้เอาไปเก็บในโฟลเดอร์ uploads
   },
   filename: function (req, file, cb) {
+    // เปลี่ยนชื่อไฟล์เป็นเวลาปัจจุบัน จะได้ไม่มีปัญหาชื่อรูปซ้ำกัน
     cb(null, Date.now() + path.extname(file.originalname));
   }
 });
@@ -112,6 +114,18 @@ const pool = mysql.createPool({
       await conn.query('ALTER TABLE users ADD COLUMN address TEXT');
     } catch (e) {}
     console.log('Users table ready');
+
+    // Auto-create comments table
+    await conn.query(`
+      CREATE TABLE IF NOT EXISTS comments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        psu_id INT NOT NULL,
+        username VARCHAR(255) NOT NULL,
+        comment_text TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Comments table ready');
 
     conn.release();
   } catch (err) {
@@ -219,11 +233,13 @@ app.post('/api/upload', authenticateToken, upload.single('image'), (req, res) =>
   res.json({ imageUrl });
 });
 
-// Get products
+// ดึงรายการสินค้าทั้งหมดไปโชว์หน้าเว็บ
 app.get('/api/products', async (req, res) => {
   try {
+    // สั่ง MySQL ว่า "ขอดูของทั้งหมดในโกดัง (ตาราง psus) หน่อย"
     const [rows] = await pool.query('SELECT * FROM psus');
-    res.json(rows);
+    res.json(rows); // โยนข้อมูลที่ได้กลับไปให้หน้าเว็บ
+
   } catch (e) {
     console.error('Products Error:', e.message);
     res.status(500).json({ error: 'Failed to fetch products' });
@@ -261,21 +277,81 @@ app.put('/api/products/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Checkout / Record Sale
+// โหมดอ่านคอมเมนต์ของสินค้าแต่ละชิ้น
+app.get('/api/products/:id/comments', async (req, res) => {
+  try {
+    const { id } = req.params;
+    // ไปดึงคอมเมนต์ที่เกี่ยวกับสินค้านี้มาโชว์ (เรียงจากใหม่สุดไปเก่าสุด)
+    const [rows] = await pool.query('SELECT * FROM comments WHERE psu_id = ? ORDER BY created_at DESC', [id]);
+    res.json(rows);
+  } catch (e) {
+    console.error('Fetch Comments Error:', e.message);
+    res.status(500).json({ error: 'Failed to fetch comments' });
+  }
+});
+
+// โหมดลบสินค้า (ต้องมีบัตรผ่านแอดมินถึงจะทำได้)
+app.delete('/api/products/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    // ลบสินค้าชิ้นนี้ทิ้งจากตารางซะ!
+    await pool.query('DELETE FROM psus WHERE psu_id=?', [id]);
+    res.json({ message: 'Product deleted successfully' });
+  } catch (e) {
+    console.error('Delete Product Error:', e.message);
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+// Post a Comment
+app.post('/api/products/:id/comments', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, comment_text } = req.body;
+    if (!username || !comment_text) return res.status(400).json({ error: 'Missing data' });
+    
+    await pool.query(
+      'INSERT INTO comments (psu_id, username, comment_text) VALUES (?, ?, ?)',
+      [id, username, comment_text]
+    );
+    res.json({ message: 'Comment added successfully' });
+  } catch (e) {
+    console.error('Post Comment Error:', e.message);
+    res.status(500).json({ error: 'Failed to post comment' });
+  }
+});
+
+// ระบบตอนกดจ่ายเงิน
 app.post('/api/checkout', async (req, res) => {
   try {
-    const { items, username, payment_slip } = req.body; // Array of cart items, username, slip
+    const { items, username, payment_slip } = req.body; // รับของในตะกร้า, ชื่อคนซื้อ, และสลิป
+    
+    // ขั้นแรก: เช็คก่อนว่าสต๊อกพอขายไหม?
     for (const item of items) {
-      // Remove ' THB' and parse to float
+      const quantity = parseInt(item.quantity) || 1;
+      const [stockCheck] = await pool.query('SELECT stock FROM psus WHERE psu_id = ?', [item.id]);
+      if (stockCheck.length > 0 && stockCheck[0].stock < quantity) {
+        // อ้าว ของหมด หรือไม่พอ ส่ง error กลับไปบอกหน้าเว็บเลย
+        return res.status(400).json({ error: `สินค้า ${item.name} มีสต๊อกไม่พอ (เหลือ ${stockCheck[0].stock} ชิ้น)` });
+      }
+    }
+
+    // ขั้นที่สอง: ถ้ารอดด่านแรกมาได้ ก็เริ่มหักของและบันทึกยอดขาย
+    for (const item of items) {
+      // แปลงราคาจากตัวอักษรเป็นตัวเลขเพียวๆ
       const rawPrice = item.price.toString().replace(/[^0-9.]/g, '');
       const itemPrice = parseFloat(rawPrice) || 0;
       const quantity = parseInt(item.quantity) || 1;
       const totalPrice = itemPrice * quantity;
       
+      // บันทึกออเดอร์ลงตารางบัญชี (sales)
       await pool.query(
         'INSERT INTO sales (psu_id, name, price, quantity, total_price, username, status, payment_slip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [item.id, item.name, itemPrice, quantity, totalPrice, username || null, 'รอตรวจสอบชำระเงิน', payment_slip || null]
       );
+
+      // สำคัญมาก! ตัดสต๊อกสินค้าที่โดนซื้อออกไป
+      await pool.query('UPDATE psus SET stock = stock - ? WHERE psu_id = ?', [quantity, item.id]);
     }
     res.json({ message: 'Checkout successful' });
   } catch (e) {
