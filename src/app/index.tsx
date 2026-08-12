@@ -19,17 +19,22 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const router = useRouter();
+  // ขนของวิเศษจากกระเป๋าโดราเอมอน (AppContext) มาใช้ในหน้านี้
   const { products, addToCart, cart, isAdmin, isUserLoggedIn, username, logout, deleteProduct } = useAppContext();
+  
+  // กล่องเก็บคำค้นหา และสวิตช์เปิดปิดเมนูต่างๆ
   const [searchText, setSearchText] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
   const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default');
 
+  // ฟังก์ชันตัวช่วย แกะเอาเฉพาะตัวเลขจากราคา (เอาไว้เรียงลำดับ)
   const parsePrice = (priceStr: string) => parseInt(priceStr.toString().replace(/[^0-9]/g, '')) || 0;
 
+  // กรองสินค้าตามคำค้นหาที่พิมพ์ลงไป
   const filteredProducts = products.filter((p: any) => 
     p.name.toLowerCase().includes(searchText.toLowerCase())
-  // เรียงลำดับสินค้าตามราคา (น้อยไปมาก หรือ มากไปน้อย)
+  // แล้วจับมาเรียงลำดับซะหน่อย (น้อยไปมาก หรือ มากไปน้อย)
   ).sort((a: any, b: any) => {
     if (sortOrder === 'asc') return parsePrice(a.price) - parsePrice(b.price);
     if (sortOrder === 'desc') return parsePrice(b.price) - parsePrice(a.price);
@@ -57,10 +62,10 @@ export default function HomeScreen() {
     }
   };
 
-  // ส่วนของการ์ดโชว์สินค้าแต่ละตัว
+  // วาดหน้าตาการ์ดสินค้า 1 ชิ้น (ชิ้นไหนเป็นยังไงก็จัดไปตามนี้เลย)
   const renderProduct = ({ item }: { item: any }) => (
     <View style={styles.productCard}>
-      {/* Top: Image and Info */}
+      {/* ครึ่งบน: รูปภาพและข้อมูล (กดตรงนี้เพื่อเข้าไปดูไส้ในสินค้า) */}
       <TouchableOpacity onPress={() => router.push({ pathname: '/product/[id]', params: { id: item.id } })} style={styles.productTop}>
         <Image
           source={{ uri: item.image_url }}
@@ -73,13 +78,14 @@ export default function HomeScreen() {
         </View>
       </TouchableOpacity>
       
-      {/* Bottom: Action Buttons */}
+      {/* ครึ่งล่าง: ปุ่มสารพัดประโยชน์ */}
       <View style={styles.productActions}>
         <TouchableOpacity style={styles.buyButton} onPress={() => handleBuy(item)}>
           <Ionicons name="cart-outline" size={16} color="#0F172A" style={{ marginRight: 4 }} />
           <Text style={styles.buyButtonText}>Buy</Text>
         </TouchableOpacity>
         
+        {/* โซนนี้สำหรับแอดมินคนเก่งเท่านั้น (ปุ่มแก้ไข/ลบ) */}
         {isAdmin && (
           <View style={styles.adminActions}>
             <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#3B82F6', shadowColor: '#3B82F6', paddingHorizontal: 12 }]} onPress={() => router.push({ pathname: '/add', params: { id: item.id } })}>

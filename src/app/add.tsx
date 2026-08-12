@@ -54,9 +54,10 @@ export default function AddEditScreen() {
   const { id } = useLocalSearchParams();
   const { addProduct, updateProduct, deleteProduct, isAdmin, products, token } = useAppContext();
   
-  // If id is provided, we are in Edit mode
+  // ถ้ามี id ส่งมาแปลว่าเราจะ "แก้ไข" สินค้าตัวเก่า (หาของเก่ามาโชว์ก่อน)
   const existingProduct = id ? products.find(p => p.id === id) : null;
 
+  // เตรียมที่เก็บข้อมูล (State) ไว้รับค่าจากช่องกรอกต่างๆ
   const [name, setName] = useState(existingProduct?.name || '');
   const [price, setPrice] = useState(existingProduct?.price?.toString().replace(/[^0-9.]/g, '') || '');
   const [brand, setBrand] = useState(existingProduct?.brand || '');
@@ -83,6 +84,7 @@ export default function AddEditScreen() {
     );
   }
 
+  // ฟังก์ชันนี้เรียกหน้าต่างอัลบั้มรูปในมือถือให้เด้งขึ้นมา
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -91,9 +93,10 @@ export default function AddEditScreen() {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
+      // ถ้าเลือกรูปเสร็จและไม่ได้กดยกเลิก
       const selectedUri = result.assets[0].uri;
       
-      // Upload to server
+      // เอาละ ได้รูปมาแล้ว ก็เตรียมส่งไปให้เซิร์ฟเวอร์หลังบ้าน
       try {
         const formData = new FormData();
         const filename = selectedUri.split('/').pop() || 'image.jpg';
@@ -133,7 +136,9 @@ export default function AddEditScreen() {
     }
   };
 
+  // ฟังก์ชันนี้เรียกตอนกดปุ่ม "บันทึก" (Save) หรือ "แก้ไข"
   const handleSave = async () => {
+    // ดักไว้ก่อนว่ากรอกชื่อกับราคาหรือยัง ห้ามปล่อยว่างนะ!
     if (!name || !price) {
       Alert.alert('เกิดข้อผิดพลาด', 'กรุณากรอกข้อมูลให้ครบถ้วน');
       return;
@@ -157,9 +162,10 @@ export default function AddEditScreen() {
       success = await addProduct(productData);
     }
 
+    // ลุยเลย! ถ้าสำเร็จก็เด้งแจ้งเตือนแล้วพาผู้ใช้กลับหน้าแรก
     if (success) {
       if (typeof window !== 'undefined') {
-        window.alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
+        window.alert('บันทึกข้อมูลสุดแสนจะเพอร์เฟกต์เรียบร้อย!');
         router.replace('/');
       } else {
         Alert.alert('สำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว!', [
@@ -171,6 +177,7 @@ export default function AddEditScreen() {
     }
   };
 
+  // ฟังก์ชันสับสวิตช์สั่ง "ลบทิ้ง" (อันนี้มีแต่แอดมินที่กดได้)
   const handleDelete = () => {
     if (typeof window !== 'undefined') {
       const confirmDelete = window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบสินค้านี้? (ไม่สามารถกู้คืนได้)');

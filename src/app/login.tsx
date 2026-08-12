@@ -8,13 +8,18 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
   const router = useRouter();
+  // ดึงฟังก์ชันลอกอินมาจาก AppContext เพื่อใช้งาน
   const { login } = useAppContext();
+  
+  // สร้างกล่องเก็บข้อมูลชื่อผู้ใช้ รหัสผ่าน และเช็คว่าเป็นแอดมินหรือผู้ใช้ทั่วไป
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isAdminLogin, setIsAdminLogin] = useState(false);
 
+  // ฟังก์ชันพระเอกของเรา เอาไว้กดแล้วส่งข้อมูลไปเช็คที่เซิร์ฟเวอร์
   const handleLogin = async () => {
     try {
+      // สลับเป้าหมาย API ให้ถูกว่าลอกอินแบบไหน
       const endpoint = isAdminLogin ? '/api/login' : '/api/user/login';
       const res = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
@@ -25,14 +30,16 @@ export default function LoginScreen() {
         })
       });
       const data = await res.json();
+      
+      // ถ้าผ่านฉลุย ได้เหรียญทอง (Token) มา
       if (res.ok && data.token) {
-        login(data.token, data.role, data.username);
-        router.replace('/');
+        login(data.token, data.role, data.username); // เอาไปเก็บไว้ใช้งาน
+        router.replace('/'); // แล้วพาไปหน้าหลักเลย
       } else {
         Alert.alert('ผิดพลาด', data.error || 'Username หรือ Password ไม่ถูกต้อง');
       }
     } catch (e) {
-      Alert.alert('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+      Alert.alert('ผิดพลาด', 'เน็ตหลุดหรือเซิร์ฟเวอร์งอแงครับ');
     }
   };
 
