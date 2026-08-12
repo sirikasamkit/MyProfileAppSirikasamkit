@@ -14,6 +14,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { useRouter } from 'expo-router';
 import { useAppContext } from '@/context/AppContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -58,49 +60,61 @@ export default function HomeScreen() {
   // ส่วนของการ์ดโชว์สินค้าแต่ละตัว
   const renderProduct = ({ item }: { item: any }) => (
     <View style={styles.productCard}>
-      {/* กดที่รูปหรือชื่อเพื่อไปดูรายละเอียดแบบเจาะลึก */}
-      <TouchableOpacity onPress={() => router.push({ pathname: '/product/[id]', params: { id: item.id } })} style={{ flex: 1 }}>
+      {/* Top: Image and Info */}
+      <TouchableOpacity onPress={() => router.push({ pathname: '/product/[id]', params: { id: item.id } })} style={styles.productTop}>
         <Image
           source={{ uri: item.image_url }}
           style={styles.productImage}
           resizeMode="contain"
         />
         <View style={styles.productInfo}>
-          <Text style={styles.productName}>{item.name}</Text>
-          <Text style={styles.productPrice}>{item.price}</Text>
+          <Text style={styles.productName} numberOfLines={2}>{item.name}</Text>
+          <Text style={styles.productPrice}>{item.price} ฿</Text>
         </View>
       </TouchableOpacity>
-      <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 15, paddingBottom: 15 }}>
+      
+      {/* Bottom: Action Buttons */}
+      <View style={styles.productActions}>
         <TouchableOpacity style={styles.buyButton} onPress={() => handleBuy(item)}>
+          <Ionicons name="cart-outline" size={16} color="#0F172A" style={{ marginRight: 4 }} />
           <Text style={styles.buyButtonText}>Buy</Text>
         </TouchableOpacity>
+        
         {isAdmin && (
-          <>
-            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#3B82F6', paddingHorizontal: 12 }]} onPress={() => router.push({ pathname: '/add', params: { id: item.id } })}>
-              <Text style={styles.buyButtonText}>Edit</Text>
+          <View style={styles.adminActions}>
+            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#3B82F6', shadowColor: '#3B82F6', paddingHorizontal: 12 }]} onPress={() => router.push({ pathname: '/add', params: { id: item.id } })}>
+              <FontAwesome5 name="pen" size={12} color="#FFF" style={{ marginRight: 4 }} />
+              <Text style={[styles.buyButtonText, { color: '#FFF', fontSize: 11 }]}>Edit</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#EF4444', paddingHorizontal: 12 }]} onPress={() => confirmDelete(item)}>
-              <Text style={styles.buyButtonText}>Del</Text>
+            <TouchableOpacity style={[styles.buyButton, { backgroundColor: '#EF4444', shadowColor: '#EF4444', paddingHorizontal: 12 }]} onPress={() => confirmDelete(item)}>
+              <Ionicons name="trash" size={14} color="#FFF" style={{ marginRight: 4 }} />
+              <Text style={[styles.buyButtonText, { color: '#FFF', fontSize: 11 }]}>Del</Text>
             </TouchableOpacity>
-          </>
+          </View>
         )}
       </View>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+    <View style={styles.container}>
+      {/* พื้นหลังไล่สีและลูกไฟอวกาศ */}
+      <LinearGradient colors={['#0F172A', '#1E1B4B', '#000000']} style={StyleSheet.absoluteFill} />
+      <View style={styles.orb1} />
+      <View style={styles.orb2} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
-          <Text style={styles.menuIcon}>≡</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>PSU Store</Text>
-        <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/cart')}>
-            <Text style={styles.cartIcon}>🛒</Text>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
+            <Ionicons name="menu" size={28} color="#F8FAFC" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>PSU Store</Text>
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.cartButton} onPress={() => router.push('/cart')}>
+              <Ionicons name="cart" size={26} color="#F8FAFC" />
             {cart.length > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>{cart.reduce((a, c) => a + c.quantity, 0)}</Text>
@@ -113,7 +127,7 @@ export default function HomeScreen() {
       {/* Search and Filter */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Ionicons name="search" size={20} color="#94A3B8" style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search PSU..."
@@ -220,13 +234,42 @@ export default function HomeScreen() {
         </View>
       </Modal>
     </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0F172A",
+    backgroundColor: '#0F172A',
+  },
+  orb1: {
+    position: 'absolute',
+    top: -50,
+    left: -50,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: 'rgba(59, 130, 246, 0.4)', // ฟ้า
+    shadowColor: '#3B82F6',
+    shadowOpacity: 1,
+    shadowRadius: 100,
+    elevation: 20,
+    filter: 'blur(50px)' as any, // ใช้งานได้บน Web/บาง Platform
+  },
+  orb2: {
+    position: 'absolute',
+    bottom: -100,
+    right: -100,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: 'rgba(245, 158, 11, 0.3)', // ส้มทอง
+    shadowColor: '#F59E0B',
+    shadowOpacity: 1,
+    shadowRadius: 100,
+    elevation: 20,
+    filter: 'blur(60px)' as any,
   },
   header: {
     flexDirection: "row",
@@ -282,20 +325,20 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     padding: 15,
-    backgroundColor: "#1E293B",
+    backgroundColor: "transparent",
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#334155",
   },
   searchBar: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#0F172A",
-    borderRadius: 8,
-    paddingHorizontal: 10,
+    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    borderRadius: 20,
+    paddingHorizontal: 15,
     height: 40,
     marginRight: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.1)",
   },
   searchIcon: {
     fontSize: 16,
@@ -336,53 +379,79 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   productCard: {
-    flexDirection: "row",
-    backgroundColor: "#1E293B",
-    borderRadius: 12,
-    padding: 10,
-    alignItems: "center",
+    flexDirection: "column",
+    backgroundColor: "rgba(30, 41, 59, 0.85)", // Glass effect
+    borderRadius: 16,
+    padding: 15,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
     borderWidth: 1,
-    borderColor: "#334155",
+    borderColor: "rgba(255, 255, 255, 0.05)",
+    borderLeftWidth: 4,
+    borderLeftColor: "#F59E0B",
+    marginBottom: 15,
+  },
+  productTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  productActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.05)",
+    paddingTop: 15,
+  },
+  adminActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
   productImage: {
-    width: 80,
-    height: 80,
+    width: 90,
+    height: 90,
     borderRadius: 8,
     marginRight: 15,
     backgroundColor: "#FFFFFF",
   },
   productInfo: {
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   productName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#F8FAFC",
-    marginBottom: 5,
-  },
-  productPrice: {
     fontSize: 16,
     fontWeight: "700",
+    color: "#F8FAFC",
+    marginBottom: 6,
+  },
+  productPrice: {
+    fontSize: 18,
+    fontWeight: "900",
     color: "#F59E0B",
-    marginBottom: 10,
   },
   buyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: "#F59E0B",
     alignSelf: "flex-start",
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    borderRadius: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20, // Pill shape
+    shadowColor: "#F59E0B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
   },
   buyButtonText: {
     color: "#0F172A",
-    fontSize: 12,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "bold",
+    textTransform: "uppercase",
   },
   bottomNav: {
     flexDirection: "row",

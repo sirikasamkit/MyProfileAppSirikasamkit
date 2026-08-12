@@ -14,6 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAppContext, API_BASE_URL } from '@/context/AppContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
 const CustomDropdown = ({ label, value, options, onSelect }: any) => {
@@ -200,12 +202,18 @@ export default function AddEditScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{id ? 'Edit PSU' : 'Add PSU'}</Text>
+    <View style={styles.container}>
+      <LinearGradient colors={['#0F172A', '#1E1B4B', '#000000']} style={StyleSheet.absoluteFill} />
+      <View style={styles.orb1} />
+      <View style={styles.orb2} />
+
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{id ? 'Edit PSU' : 'Add PSU'}</Text>
+
         <View style={{ width: 30 }} />
       </View>
 
@@ -297,8 +305,10 @@ export default function AddEditScreen() {
           </TouchableOpacity>
         )}
         <View style={{ height: 40 }} />
+        <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
@@ -307,15 +317,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0F172A',
   },
+  orb1: {
+    position: 'absolute', top: -50, right: -50, width: 250, height: 250, borderRadius: 125,
+    backgroundColor: 'rgba(59, 130, 246, 0.4)', shadowColor: '#3B82F6', shadowOpacity: 1,
+    shadowRadius: 100, elevation: 20, filter: 'blur(50px)' as any,
+  },
+  orb2: {
+    position: 'absolute', bottom: 100, left: -100, width: 300, height: 300, borderRadius: 150,
+    backgroundColor: 'rgba(245, 158, 11, 0.3)', shadowColor: '#F59E0B', shadowOpacity: 1,
+    shadowRadius: 100, elevation: 20, filter: 'blur(60px)' as any,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#1E293B',
+    backgroundColor: 'transparent',
     borderBottomWidth: 1,
-    borderBottomColor: '#334155',
+    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   backButton: {
     width: 30,
@@ -341,14 +361,14 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   input: {
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
+    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+    borderRadius: 12,
     color: '#F8FAFC',
     paddingHorizontal: 15,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   imageRow: {
     flexDirection: 'row',
@@ -375,27 +395,39 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: '#F59E0B',
-    borderRadius: 8,
-    paddingVertical: 15,
+    borderRadius: 20,
+    paddingVertical: 16,
     alignItems: 'center',
     marginTop: 30,
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   saveButtonText: {
     color: '#0F172A',
     fontSize: 16,
     fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   deleteButton: {
     backgroundColor: '#EF4444',
-    paddingVertical: 15,
-    borderRadius: 8,
+    paddingVertical: 16,
+    borderRadius: 20,
     alignItems: 'center',
     marginTop: 15,
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   deleteButtonText: {
     color: '#F8FAFC',
     fontSize: 16,
     fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   modalOverlay: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center'

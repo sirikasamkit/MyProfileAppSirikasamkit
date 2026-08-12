@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, TextInput,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAppContext, API_BASE_URL } from '@/context/AppContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 
 export default function ProductDetailScreen() {
   // ดึงค่า id ของสินค้าจาก URL ที่กดเข้ามา
@@ -122,14 +124,19 @@ export default function ProductDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>รายละเอียดสินค้า</Text>
-        <View style={{ width: 30 }} />
-      </View>
+    <View style={styles.container}>
+      <LinearGradient colors={['#0F172A', '#1E1B4B', '#000000']} style={StyleSheet.absoluteFill} />
+      <View style={styles.orb1} />
+      <View style={styles.orb2} />
+
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>รายละเอียดสินค้า</Text>
+          <View style={{ width: 30 }} />
+        </View>
 
       <ScrollView style={styles.content}>
         <Image
@@ -142,27 +149,26 @@ export default function ProductDetailScreen() {
           <Text style={styles.productName}>{product.name}</Text>
           <Text style={styles.productPrice}>{product.price} ฿</Text>
 
-          <View style={styles.specBox}>
-            <Text style={styles.specTitle}>ข้อมูลทางเทคนิค (Specifications)</Text>
-            <View style={styles.specRow}>
-              <Text style={styles.specLabel}>แบรนด์:</Text>
+          <View style={styles.specGrid}>
+            <View style={styles.specBadge}>
+              <Text style={styles.specLabel}>แบรนด์</Text>
               <Text style={styles.specValue}>{product.brand || '-'}</Text>
             </View>
-            <View style={styles.specRow}>
-              <Text style={styles.specLabel}>กำลังไฟ (Wattage):</Text>
+            <View style={styles.specBadge}>
+              <Text style={styles.specLabel}>กำลังไฟ (Wattage)</Text>
               <Text style={styles.specValue}>{product.wattage ? `${product.wattage}W` : '-'}</Text>
             </View>
-            <View style={styles.specRow}>
-              <Text style={styles.specLabel}>มาตรฐาน (80+):</Text>
+            <View style={styles.specBadge}>
+              <Text style={styles.specLabel}>มาตรฐาน (80+)</Text>
               <Text style={styles.specValue}>{product.efficiency_rating || '-'}</Text>
             </View>
-            <View style={styles.specRow}>
-              <Text style={styles.specLabel}>การถอดสาย:</Text>
+            <View style={styles.specBadge}>
+              <Text style={styles.specLabel}>การถอดสาย</Text>
               <Text style={styles.specValue}>{product.modular_type || '-'}</Text>
             </View>
-            <View style={styles.specRow}>
-              <Text style={styles.specLabel}>สินค้าคงเหลือ:</Text>
-              <Text style={styles.specValue}>{product.stock > 0 ? `${product.stock} ชิ้น` : 'สินค้าหมด'}</Text>
+            <View style={[styles.specBadge, { width: '100%', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderColor: 'rgba(59, 130, 246, 0.3)' }]}>
+              <Text style={styles.specLabel}>สินค้าคงเหลือ</Text>
+              <Text style={[styles.specValue, { color: '#3B82F6', fontSize: 18 }]}>{product.stock > 0 ? `${product.stock} ชิ้น` : 'สินค้าหมด'}</Text>
             </View>
           </View>
 
@@ -225,38 +231,57 @@ export default function ProductDetailScreen() {
         
         <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0F172A' },
+  orb1: {
+    position: 'absolute', top: -50, right: -50, width: 250, height: 250, borderRadius: 125,
+    backgroundColor: 'rgba(59, 130, 246, 0.4)', shadowColor: '#3B82F6', shadowOpacity: 1,
+    shadowRadius: 100, elevation: 20, filter: 'blur(50px)' as any,
+  },
+  orb2: {
+    position: 'absolute', bottom: 100, left: -100, width: 300, height: 300, borderRadius: 150,
+    backgroundColor: 'rgba(245, 158, 11, 0.3)', shadowColor: '#F59E0B', shadowOpacity: 1,
+    shadowRadius: 100, elevation: 20, filter: 'blur(60px)' as any,
+  },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 15, backgroundColor: '#1E293B',
-    borderBottomWidth: 1, borderBottomColor: '#334155',
+    paddingHorizontal: 20, paddingVertical: 15, backgroundColor: 'transparent',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   backButton: { width: 30, height: 30, justifyContent: 'center' },
-  backIcon: { fontSize: 24, color: '#F8FAFC' },
   headerTitle: { fontSize: 18, fontWeight: '600', color: '#F8FAFC' },
   content: { flex: 1 },
   productImage: { width: '100%', height: 300, backgroundColor: '#1E293B' },
   detailsContainer: { padding: 20 },
   productName: { fontSize: 22, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 10 },
   productPrice: { fontSize: 24, fontWeight: 'bold', color: '#10B981', marginBottom: 20 },
-  specBox: {
-    backgroundColor: '#1E293B', borderRadius: 12, padding: 15, marginBottom: 20,
-    borderWidth: 1, borderColor: '#334155'
+  specGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    gap: 10,
   },
-  specTitle: { fontSize: 16, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 15 },
-  specRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  specLabel: { color: '#94A3B8', fontSize: 14 },
-  specValue: { color: '#F8FAFC', fontSize: 14, fontWeight: '500' },
+  specBadge: {
+    width: '48%',
+    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+    borderRadius: 12,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  specLabel: { color: '#94A3B8', fontSize: 12, marginBottom: 5 },
+  specValue: { color: '#F8FAFC', fontSize: 15, fontWeight: 'bold' },
   buyButton: {
-    backgroundColor: '#3B82F6', paddingVertical: 15, borderRadius: 10, alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 5
+    backgroundColor: '#F59E0B', paddingVertical: 18, borderRadius: 16, alignItems: 'center',
+    shadowColor: '#F59E0B', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 8
   },
-  buyButtonText: { color: '#F8FAFC', fontSize: 18, fontWeight: 'bold' },
+  buyButtonText: { color: '#0F172A', fontSize: 18, fontWeight: '900', textTransform: 'uppercase' },
   
   commentsSection: { padding: 20, borderTopWidth: 1, borderTopColor: '#1E293B' },
   commentsTitle: { fontSize: 18, fontWeight: 'bold', color: '#F8FAFC', marginBottom: 15 },
