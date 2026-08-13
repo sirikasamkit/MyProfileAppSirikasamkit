@@ -113,7 +113,7 @@ export default function ProductDetailScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backIcon}>←</Text>
+            <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
           </TouchableOpacity>
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

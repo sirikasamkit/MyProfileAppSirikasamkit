@@ -6,10 +6,14 @@ import { useAppContext, API_BASE_URL } from '@/context/AppContext';
 
 export default function OrdersScreen() {
   const router = useRouter();
+  // ขอดึง Token มาใช้หน่อย เพื่อเช็คว่าเป็นใครที่ล็อกอินอยู่
   const { token, isAdmin } = useAppContext();
+  
+  // กล่องเก็บออเดอร์ทั้งหมดของคนๆ นี้
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // เปิดหน้านี้ปุ๊บ เช็คก่อนเลยว่าล็อกอินหรือยัง ถ้ายังเตะกลับไปหน้าล็อกอิน
   useEffect(() => {
     if (!token) {
       router.replace('/login');
@@ -18,6 +22,7 @@ export default function OrdersScreen() {
     fetchOrders();
   }, [token]);
 
+  // ฟังก์ชันไปเคาะประตูหลังบ้าน ขอรายการคำสั่งซื้อของคนนี้มาดูหน่อย
   const fetchOrders = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/user/orders`, {
@@ -34,6 +39,7 @@ export default function OrdersScreen() {
     }
   };
 
+  // ถ้าระบบกำลังโหลดข้อมูลอยู่ ก็โชว์ไอคอนหมุนๆ ให้ดูก่อน
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>

@@ -6,14 +6,17 @@ import { useAppContext, CartItem } from '@/context/AppContext';
 
 export default function CartScreen() {
   const router = useRouter();
+  // หยิบตะกร้าและที่ลบของในตะกร้ามาจากส่วนกลาง (AppContext)
   const { cart, removeFromCart } = useAppContext();
 
+  // คิดตังค์รวมราคาสินค้าในตะกร้าทั้งหมด
   const total = cart.reduce((sum, item) => {
     const priceStr = item.price.toString().replace(/[^0-9.]/g, '');
     const priceNum = parseFloat(priceStr) || 0;
     return sum + (priceNum * item.quantity);
   }, 0);
 
+  // วาดหน้าตาสินค้า 1 ชิ้นในตะกร้า (มีรูป, ชื่อ, ราคา และปุ่มลบทิ้ง)
   const renderCartItem = ({ item }: { item: CartItem }) => (
     <View style={styles.cartItem}>
       <Image source={{ uri: item.image_url }} style={styles.itemImage} resizeMode="contain" />
@@ -37,6 +40,7 @@ export default function CartScreen() {
         <View style={{ width: 30 }} />
       </View>
 
+      {/* เช็คก่อนเลยว่าตะกร้าว่างเปล่าไหม ถ้าว่างก็โชว์ข้อความให้ไปช้อปปิ้ง */}
       {cart.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>ไม่มีสินค้าในตะกร้า</Text>
@@ -45,6 +49,7 @@ export default function CartScreen() {
           </TouchableOpacity>
         </View>
       ) : (
+        // แต่ถ้ามีของในตะกร้า ก็จัดไป! วาดรายการสินค้าออกมาเลย
         <>
           <FlatList
             data={cart}

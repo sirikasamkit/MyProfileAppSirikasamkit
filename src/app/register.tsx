@@ -6,19 +6,23 @@ import { API_BASE_URL } from '@/context/AppContext';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  // เตรียมกล่องไว้เก็บข้อมูลส่วนตัวตอนที่ลูกค้าพิมพ์เข้ามา
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // ปุ่มนี้พอกดปุ๊บ จะเริ่มเช็คข้อมูลแล้วส่งไปสมัครสมาชิก
   const handleRegister = async () => {
+    // ดักจับคนลืมกรอกข้อมูลสำคัญ
     if (!username || !password) {
-      Alert.alert('ผิดพลาด', 'กรุณากรอก Username และ Password');
+      Alert.alert('ผิดพลาด', 'กรุณากรอก Username และ Password ให้ครบถ้วนนะ');
       return;
     }
+    // ดักจับคนพิมพ์รหัสผ่านสองช่องไม่เหมือนกัน (ป้องกันพิมพ์ผิด)
     if (password !== confirmPassword) {
-      Alert.alert('ผิดพลาด', 'รหัสผ่านไม่ตรงกัน');
+      Alert.alert('ผิดพลาด', 'รหัสผ่านสองช่องไม่ตรงกัน ลองใหม่อีกครั้งครับ');
       return;
     }
 
@@ -35,12 +39,14 @@ export default function RegisterScreen() {
       });
       const data = await res.json();
       
+      // ถ้าสมัครผ่านฉลุย
       if (res.ok) {
-        Alert.alert('สำเร็จ', 'สมัครสมาชิกเรียบร้อยแล้ว!', [
+        Alert.alert('สำเร็จ', 'ยินดีต้อนรับ! สมัครสมาชิกเรียบร้อยแล้ว!', [
           { text: 'ไปหน้าเข้าสู่ระบบ', onPress: () => router.replace('/login') }
         ]);
       } else {
-        Alert.alert('ผิดพลาด', data.error || 'ไม่สามารถสมัครสมาชิกได้');
+        // มีปัญหา เช่น ชื่อซ้ำ
+        Alert.alert('ผิดพลาด', data.error || 'สมัครสมาชิกไม่สำเร็จครับ');
       }
     } catch (e) {
       Alert.alert('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');

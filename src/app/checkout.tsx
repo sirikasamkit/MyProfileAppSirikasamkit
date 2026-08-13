@@ -7,16 +7,20 @@ import { useAppContext, API_BASE_URL } from '@/context/AppContext';
 
 export default function CheckoutScreen() {
   const router = useRouter();
+  // ดึงตะกร้าสินค้า และฟังก์ชันจำเป็นมาจากระบบกลาง
   const { cart, username, token, fetchProducts, clearCart } = useAppContext();
+  // ไว้เก็บรูปสลิปโอนเงินที่ลูกค้าอัปโหลด
   const [slipImage, setSlipImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // คำนวณยอดเงินรวมที่ต้องจ่าย
   const total = cart.reduce((sum, item) => {
     const priceStr = item.price.toString().replace(/[^0-9.]/g, '');
     const priceNum = parseFloat(priceStr) || 0;
     return sum + (priceNum * item.quantity);
   }, 0);
 
+  // ฟังก์ชันกดปุ่ม "อัปโหลดสลิป" แล้วเปิดแกลเลอรี่รูปขึ้นมา
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
@@ -35,13 +39,15 @@ export default function CheckoutScreen() {
     }
   };
 
+  // เมื่อลูกค้ากดปุ่ม "ยืนยันการชำระเงิน"
   const handleConfirmPayment = async () => {
+    // โวยวายถ้ายังไม่แนบสลิป
     if (!slipImage) {
       Alert.alert('ผิดพลาด', 'กรุณาอัปโหลดสลิปโอนเงินก่อนยืนยัน');
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // หมุนติ้วๆ รอแป๊บนึง
     try {
       // 1. Upload Slip Image
       const formData = new FormData();

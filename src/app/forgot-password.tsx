@@ -6,13 +6,16 @@ import { API_BASE_URL } from '@/context/AppContext';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  // แก๊งตัวแปรไว้รับข้อมูลตอนลูกค้ากรอกขอรหัสผ่านใหม่
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
+  // ฟังก์ชันพระเอกของเรา เอาไว้กดแล้วส่งไปขอรหัสใหม่
   const handleResetPassword = async () => {
+    // โวยวายถ้าลืมกรอกข้อมูลช่องใดช่องหนึ่ง
     if (!username || !email || !newPassword) {
-      Alert.alert('ผิดพลาด', 'กรุณากรอกข้อมูลให้ครบถ้วน');
+      Alert.alert('ผิดพลาด', 'กรุณากรอกข้อมูลให้ครบทุกช่องนะครับ');
       return;
     }
 
@@ -28,15 +31,16 @@ export default function ForgotPasswordScreen() {
       });
       const data = await res.json();
       
+      // ถ้าผ่านฉลุย เปลี่ยนรหัสสำเร็จ
       if (res.ok) {
-        Alert.alert('สำเร็จ', 'เปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว!', [
+        Alert.alert('สำเร็จ', 'เปลี่ยนรหัสผ่านใหม่เรียบร้อยแล้ว! ไปล็อกอินกันเลย', [
           { text: 'ไปหน้าเข้าสู่ระบบ', onPress: () => router.replace('/login') }
         ]);
       } else {
-        Alert.alert('ผิดพลาด', data.error || 'ไม่สามารถเปลี่ยนรหัสผ่านได้');
+        Alert.alert('ผิดพลาด', data.error || 'ข้อมูลไม่ถูกต้อง เปลี่ยนรหัสผ่านไม่ได้ครับ');
       }
     } catch (e) {
-      Alert.alert('ผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+      Alert.alert('ผิดพลาด', 'เน็ตหลุดหรือเซิร์ฟเวอร์งอแงครับ');
     }
   };
 

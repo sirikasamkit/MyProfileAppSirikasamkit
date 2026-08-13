@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 export default function ExploreScreen() {
   const router = useRouter();
 
+  // รายชื่อหมวดหมู่สินค้าที่มีในร้าน (สมมติขึ้นมาให้ดูสวยๆ)
   const categories = [
     { id: '1', name: 'Power Supply (PSU)', icon: '⚡' },
     { id: '2', name: 'Cables & Wiring', icon: '🔌' },
@@ -24,6 +25,7 @@ export default function ExploreScreen() {
       </View>
 
       <ScrollView style={styles.content}>
+        {/* วนลูปวาดกล่องหมวดหมู่สินค้าทีละกล่อง */}
         {categories.map((cat) => (
           <TouchableOpacity key={cat.id} style={styles.categoryCard}>
             <Text style={styles.categoryIcon}>{cat.icon}</Text>

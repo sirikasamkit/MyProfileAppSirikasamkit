@@ -38,6 +38,7 @@ export const API_BASE_URL = 'http://119.59.102.161:3047';
 const PRODUCTS_URL = `${API_BASE_URL}/api/products`;
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // แก๊งตัวแปรเก็บข้อมูลส่วนกลาง ใครอยู่หน้าไหนก็ดึงพวกนี้ไปใช้ได้
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -45,6 +46,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
+  // ฟังก์ชันมอบมงกุฎ (ตั้งค่าตอนล็อกอินสำเร็จว่าคนนี้คือใคร แอดมินหรือผู้ใช้ทั่วไป)
   const login = (jwtToken: string, role: string, user: string) => {
     setToken(jwtToken);
     setUsername(user);

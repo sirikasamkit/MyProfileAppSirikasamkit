@@ -7,15 +7,17 @@ import { useAppContext, API_BASE_URL } from '@/context/AppContext';
 export default function SalesScreen() {
   const router = useRouter();
   const { isAdmin, token } = useAppContext();
+  // กล่องเก็บข้อมูลยอดขายและตัวหมุนติ้วๆ
   const [sales, setSales] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // States for editing order
+  // แก๊งกล่องเก็บข้อมูลสำหรับตอนแอดมินกดแก้ไขสถานะออเดอร์
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editStatus, setEditStatus] = useState('');
   const [editTracking, setEditTracking] = useState('');
   const [viewingSlip, setViewingSlip] = useState<string | null>(null);
 
+  // ฟังก์ชันนี้มีหน้าที่ไปสูบข้อมูลยอดขายมาจากเซิร์ฟเวอร์
   const fetchSales = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/sales`, {
@@ -28,7 +30,7 @@ export default function SalesScreen() {
     } catch (error) {
       console.error('Failed to fetch sales', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // โหลดเสร็จแล้วหยุดหมุนติ้วๆ
     }
   };
 
@@ -40,6 +42,7 @@ export default function SalesScreen() {
     fetchSales();
   }, [isAdmin, token]);
 
+  // ฟังก์ชันสวรรค์ประทาน เอาไว้อัปเดตว่า "ส่งของแล้วจ้า นี่เลขแทร็กกิ้ง"
   const handleUpdateStatus = async (id: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/orders/${id}/status`, {
@@ -52,8 +55,8 @@ export default function SalesScreen() {
       });
       if (response.ok) {
         Alert.alert('สำเร็จ', 'อัปเดตสถานะจัดส่งเรียบร้อยแล้ว');
-        setEditingId(null);
-        fetchSales();
+        setEditingId(null); // ปิดโหมดแก้ไข
+        fetchSales(); // โหลดข้อมูลใหม่ให้เป็นปัจจุบัน
       } else {
         Alert.alert('ผิดพลาด', 'ไม่สามารถอัปเดตได้');
       }
@@ -79,9 +82,11 @@ export default function SalesScreen() {
     );
   }
 
+  // คำนวณสรุปยอดขายแบบเร็วๆ (เอาเงินกับจำนวนของที่ขายได้มารวมกัน)
   const totalRevenue = sales.reduce((sum, item) => sum + Number(item.total_price || 0), 0);
   const totalItemsSold = sales.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
 
+  // วาดหน้าตารายการออเดอร์ 1 ชิ้น (แอดมินดูรายละเอียดได้)
   const renderSaleItem = ({ item }: { item: any }) => {
     const isEditing = editingId === item.id;
 

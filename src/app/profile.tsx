@@ -6,8 +6,10 @@ import { useAppContext, API_BASE_URL } from '@/context/AppContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  // ดึงชื่อผู้ใช้, Token และฟังก์ชันออกจากระบบมาจากส่วนกลาง
   const { username, token, logout, isAdmin } = useAppContext();
   
+  // แก๊งตัวแปรไว้เก็บสถานะโหลด และสถานะว่ากำลังกดแก้ไขอยู่หรือเปล่า
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -16,14 +18,17 @@ export default function ProfileScreen() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
 
+  // ถ้าเปิดหน้านี้ปุ๊บแล้วพบว่าไม่ได้ล็อกอิน (ไม่มี Token) ก็ส่งกลับไปหน้าล็อกอินเลย
   useEffect(() => {
     if (!token) {
       router.replace('/login');
       return;
     }
+    // ถ้าล็อกอินแล้วก็ไปดึงข้อมูลโปรไฟล์มาโชว์
     fetchProfileData();
   }, [token]);
 
+  // ฟังก์ชันนี้วิ่งไปถามข้อมูลส่วนตัว (อีเมล, เบอร์โทร, ที่อยู่) จากเซิร์ฟเวอร์
   const fetchProfileData = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/user/profile`, {
@@ -38,10 +43,11 @@ export default function ProfileScreen() {
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      setLoading(false); // เลิกหมุนติ้วๆ
     }
   };
 
+  // ฟังก์ชันเวลากดปุ่ม "บันทึก" ข้อมูลส่วนตัว
   const handleSaveProfile = async () => {
     setSaving(true);
     try {
@@ -55,7 +61,7 @@ export default function ProfileScreen() {
       });
       if (res.ok) {
         Alert.alert('สำเร็จ', 'อัปเดตข้อมูลส่วนตัวเรียบร้อยแล้ว');
-        setIsEditing(false);
+        setIsEditing(false); // บันทึกเสร็จก็ปิดโหมดแก้ไข
       } else {
         Alert.alert('ผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้');
       }

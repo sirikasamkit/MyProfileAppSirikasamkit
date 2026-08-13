@@ -72,7 +72,7 @@ export default function AddEditScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backIcon}>←</Text>
+            <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Access Denied</Text>
           <View style={{ width: 30 }} />
