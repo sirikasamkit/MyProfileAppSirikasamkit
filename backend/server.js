@@ -29,7 +29,15 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // เปลี่ยนชื่อไฟล์เป็นเวลาปัจจุบัน จะได้ไม่มีปัญหาชื่อรูปซ้ำกัน
-    cb(null, Date.now() + path.extname(file.originalname));
+    let ext = path.extname(file.originalname);
+    if (!ext) {
+      // ถ้าต้นทางไม่ได้ส่งนามสกุลไฟล์มาด้วย ให้พยายามเดาจาก mimetype
+      if (file.mimetype === 'image/png') ext = '.png';
+      else if (file.mimetype === 'image/jpeg') ext = '.jpg';
+      else if (file.mimetype === 'image/webp') ext = '.webp';
+      else ext = '.jpg'; // ค่าเริ่มต้น
+    }
+    cb(null, Date.now() + ext);
   }
 });
 const upload = multer({ storage: storage });
