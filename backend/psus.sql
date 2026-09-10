@@ -46,7 +46,15 @@ CREATE TABLE `psus` (
 
 INSERT INTO `psus` (`psu_id`, `name`, `brand`, `wattage`, `efficiency_rating`, `modular_type`, `price`, `stock`, `image`, `created_at`) VALUES
 (1, 'Corsair RM850x', 'Corsair', 850, '80 Plus Gold', 'Full Modular', 4590.00, 10, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQRMTjgBNCtbpxZSnrjWeaLJDeqGJ58GfNZRv7R0ORBg&s=10', '2026-07-23 03:24:48'),
-(2, 'Seasonic Focus GX-750', 'Seasonic', 750, '80 Plus Gold', 'Full Modular', 3890.00, 5, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV2lXauMCh1KWf_PT3nz5uJh5HiSO3F_UsL31fyrBe9w&s=10', '2026-07-23 03:24:48');
+(2, 'Seasonic Focus GX-750', 'Seasonic', 750, '80 Plus Gold', 'Full Modular', 3890.00, 5, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV2lXauMCh1KWf_PT3nz5uJh5HiSO3F_UsL31fyrBe9w&s=10', '2026-07-23 03:24:48'),
+(11, 'AZZA PSAZ 550W Bronze', 'AZZA', 550, '80 Plus Bronze', 'Non-Modular', 990.00, 25, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR07w9uEaD3vP0eZcZlhjL7d66wVwLh49G69Q&s=10', '2026-09-10 10:25:00'),
+(12, 'FSP HV PRO 550W', 'FSP', 550, '80 Plus White', 'Non-Modular', 1290.00, 18, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqL_qU4bJgY9ZzQzY7wLh49G69Q&s=10', '2026-09-10 10:25:00'),
+(13, 'MSI MAG A600DN 600W', 'MSI', 600, '80 Plus Standard', 'Non-Modular', 1590.00, 20, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT65M6_621QZf_Xv8fK1_Lq4G69Q&s=10', '2026-09-10 10:25:00'),
+(14, 'Cooler Master MWE Bronze 650W V2', 'Cooler Master', 650, '80 Plus Bronze', 'Non-Modular', 2190.00, 15, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL8zQhZq_Xv8fK1_Lq4G69Q&s=10', '2026-09-10 10:25:00'),
+(15, 'Thermaltake Toughpower GX1 700W', 'Thermaltake', 700, '80 Plus Gold', 'Non-Modular', 2790.00, 12, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqO9uEaD3vP0eZcZlhjL7d66wVw&s=10', '2026-09-10 10:25:00'),
+(16, 'SilverStone DA650 Gold 650W', 'SilverStone', 650, '80 Plus Gold', 'Full Modular', 3290.00, 10, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT65M6_621QZf_Xv8fK1_Lq4G69Q&s=10', '2026-09-10 10:25:00'),
+(17, 'ASUS ROG Thor 850W Platinum', 'ASUS', 850, '80 Plus Platinum', 'Full Modular', 7490.00, 4, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL8zQhZq_Xv8fK1_Lq4G69Q&s=10', '2026-09-10 10:25:00'),
+(18, 'be quiet! Dark Power Pro 12 1000W', 'be quiet!', 1000, '80 Plus Titanium', 'Full Modular', 8990.00, 3, 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqO9uEaD3vP0eZcZlhjL7d66wVw&s=10', '2026-09-10 10:25:00');
 
 --
 -- Indexes for dumped tables

@@ -1,20 +1,82 @@
 [
   {
     "id": "1",
-    "name": "PSU FSP HV+ 600W",
-    "price": "฿1,290",
-    "image_url": "https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/master/assets/images/psu/fsp.png"
+    "name": "Corsair RM850x",
+    "brand": "Corsair",
+    "wattage": 850,
+    "price": "฿4,590",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQRMTjgBNCtbpxZSnrjWeaLJDeqGJ58GfNZRv7R0ORBg&s=10"
   },
   {
     "id": "2",
-    "name": "PSU MSI MAG A600DN 600W BULK",
-    "price": "฿1,590",
-    "image_url": "https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/master/assets/images/psu/msi.png"
+    "name": "Seasonic Focus GX-750",
+    "brand": "Seasonic",
+    "wattage": 750,
+    "price": "฿3,890",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV2lXauMCh1KWf_PT3nz5uJh5HiSO3F_UsL31fyrBe9w&s=10"
   },
   {
     "id": "3",
-    "name": "PSU AZZA PSAZ 550W",
+    "name": "AZZA PSAZ 550W Bronze",
+    "brand": "AZZA",
+    "wattage": 550,
     "price": "฿990",
-    "image_url": "https://raw.githubusercontent.com/sirikasamkit/MyProfileAppSirikasamkit/master/assets/images/psu/azza.png"
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR07w9uEaD3vP0eZcZlhjL7d66wVwLh49G69Q&s=10"
+  },
+  {
+    "id": "4",
+    "name": "FSP HV PRO 550W",
+    "brand": "FSP",
+    "wattage": 550,
+    "price": "฿1,290",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqL_qU4bJgY9ZzQzY7wLh49G69Q&s=10"
+  },
+  {
+    "id": "5",
+    "name": "MSI MAG A600DN 600W",
+    "brand": "MSI",
+    "wattage": 600,
+    "price": "฿1,590",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT65M6_621QZf_Xv8fK1_Lq4G69Q&s=10"
+  },
+  {
+    "id": "6",
+    "name": "Cooler Master MWE Bronze 650W V2",
+    "brand": "Cooler Master",
+    "wattage": 650,
+    "price": "฿2,190",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL8zQhZq_Xv8fK1_Lq4G69Q&s=10"
+  },
+  {
+    "id": "7",
+    "name": "Thermaltake Toughpower GX1 700W",
+    "brand": "Thermaltake",
+    "wattage": 700,
+    "price": "฿2,790",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqO9uEaD3vP0eZcZlhjL7d66wVw&s=10"
+  },
+  {
+    "id": "8",
+    "name": "SilverStone DA650 Gold 650W",
+    "brand": "SilverStone",
+    "wattage": 650,
+    "price": "฿3,290",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT65M6_621QZf_Xv8fK1_Lq4G69Q&s=10"
+  },
+  {
+    "id": "9",
+    "name": "ASUS ROG Thor 850W Platinum",
+    "brand": "ASUS",
+    "wattage": 850,
+    "price": "฿7,490",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL8zQhZq_Xv8fK1_Lq4G69Q&s=10"
+  },
+  {
+    "id": "10",
+    "name": "be quiet! Dark Power Pro 12 1000W",
+    "brand": "be quiet!",
+    "wattage": 1000,
+    "price": "฿8,990",
+    "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqO9uEaD3vP0eZcZlhjL7d66wVw&s=10"
   }
 ]

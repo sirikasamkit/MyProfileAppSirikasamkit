@@ -174,12 +174,10 @@ export default function HomeScreen() {
           <Text style={styles.navIcon}>🛒</Text>
           <Text style={styles.navText}>Cart</Text>
         </TouchableOpacity>
-        {isAdmin && (
-          <TouchableOpacity style={styles.navItem} onPress={() => router.push("/sales")}>
-            <Text style={styles.navIcon}>📊</Text>
-            <Text style={styles.navText}>Sales</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/dashboard")}>
+          <Text style={styles.navIcon}>📊</Text>
+          <Text style={styles.navText}>Dashboard</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Menu Modal */}
@@ -188,6 +186,10 @@ export default function HomeScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>เมนู</Text>
             
+            <TouchableOpacity style={styles.modalItem} onPress={() => { setMenuVisible(false); router.push('/dashboard'); }}>
+              <Text style={[styles.modalItemText, { color: '#8B5CF6' }]}>📊 แดชบอร์ด & AI Analytics</Text>
+            </TouchableOpacity>
+
             {isAdmin || isUserLoggedIn ? (
               <>
                 <View style={{ paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#334155', alignItems: 'center' }}>
